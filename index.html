@@ -315,6 +315,174 @@
             height: 150px;
             overflow-y: auto;
         }
+
+        /* Analysis Modal (Glassmorphism Dark Theme) */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            color: #f8fafc;
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+
+        .modal-overlay.show .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #cbd5e1;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.2rem;
+        }
+
+        .close-btn:hover {
+            background: rgba(239, 68, 68, 0.8);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+        .modal-body::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+        .modal-body::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .analysis-section {
+            margin-bottom: 2rem;
+        }
+
+        .analysis-section h3 {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        .analysis-step {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .step-id {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #818cf8;
+            background: rgba(129, 140, 248, 0.1);
+            padding: 0.5rem;
+            border-radius: 8px;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .step-details {
+            flex: 1;
+        }
+
+        .step-logic {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            margin-top: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .step-status {
+            font-weight: bold;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .step-status.selected { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .step-status.rejected { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        
+        .analyze-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+        }
+        .analyze-btn:hover {
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+            background: linear-gradient(135deg, #059669, #047857);
+        }
     </style>
 </head>
 <body>
@@ -393,7 +561,21 @@
                     <div class="activities-grid" id="finalSelectionGrid" style="justify-content: center; display: flex; flex-wrap: wrap;">
                         <!-- Final selected pills -->
                     </div>
+                    <button id="analyzeBtn" class="run-btn analyze-btn" onclick="openAnalysisModal()">Analyze Computation 📊</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Modal -->
+    <div class="modal-overlay" id="analysisModal" onclick="if(event.target===this) closeAnalysisModal()">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Computation Analysis</h2>
+                <button class="close-btn" onclick="closeAnalysisModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content injected via JS -->
             </div>
         </div>
     </div>
@@ -408,6 +590,7 @@
         ];
         let idCounter = 5;
         let isRunning = false;
+        let analysisData = null; // Stores analysis steps
 
         // DOM Elements
         const grid = document.getElementById('activitiesGrid');
@@ -464,6 +647,7 @@
         function resetUI() {
             vizContainer.innerHTML = '';
             outputBox.classList.remove('show');
+            document.getElementById('analyzeBtn').style.display = 'none';
             log('Ready to run algorithm...');
         }
 
@@ -488,6 +672,13 @@
             log('Step 1: Sorting activities ascending by finish time O(n log n).');
             const sorted = [...activities].sort((a, b) => a.finish - b.finish);
             
+            analysisData = {
+                original: [...activities],
+                sorted: [...sorted],
+                steps: [],
+                final: []
+            };
+
             // Render sorted initial state
             vizContainer.innerHTML = '';
             const rowElements = {};
@@ -537,6 +728,7 @@
                     badge.className = 'status-badge selected';
                     badge.innerText = 'SELECTED';
                     selected.push(act);
+                    analysisData.steps.push({ act, lastFinish, isSelected: true, reason: `Start Time (${act.start}) >= Last Finish Time (${lastFinish})` });
                     lastFinish = act.finish;
                 } else {
                     // Skip
@@ -545,6 +737,7 @@
                     row.classList.add('skipped');
                     badge.className = 'status-badge skipped';
                     badge.innerText = 'SKIPPED';
+                    analysisData.steps.push({ act, lastFinish, isSelected: false, reason: `Start Time (${act.start}) < Last Finish Time (${lastFinish}) -> Overlaps` });
                 }
 
                 await sleep(1000);
@@ -562,10 +755,65 @@
                     </div>
                 `;
             });
+            analysisData.final = [...selected];
             outputBox.classList.add('show');
+            document.getElementById('analyzeBtn').style.display = 'block';
 
             isRunning = false;
             runBtn.disabled = false;
+        }
+
+        function openAnalysisModal() {
+            if (!analysisData) return;
+            const modalBody = document.getElementById('modalBody');
+            
+            let originalHtml = analysisData.original.map(a => `<span style="color: #cbd5e1; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; margin-right: 4px; font-size: 0.85rem;">${a.id}(${a.start},${a.finish})</span>`).join('');
+            let sortedHtml = analysisData.sorted.map(a => `<span style="color: #818cf8; background: rgba(129, 140, 248, 0.1); padding: 2px 6px; border-radius: 4px; margin-right: 4px; font-size: 0.85rem;">${a.id}(${a.start},${a.finish})</span>`).join('');
+
+            let stepsHtml = analysisData.steps.map(step => `
+                <div class="analysis-step">
+                    <div class="step-id">${step.act.id}</div>
+                    <div class="step-details">
+                        <div style="font-weight: 600; font-size: 1.05rem;">Evaluate ${step.act.id} [Start: ${step.act.start}, Finish: ${step.act.finish}]</div>
+                        <div class="step-logic">
+                            Condition: Is Start Time (${step.act.start}) >= Last Finish Time (${step.lastFinish})?
+                            <br>
+                            <span style="color: ${step.isSelected ? '#34d399' : '#f87171'}">${step.reason}</span>
+                        </div>
+                    </div>
+                    <div class="step-status ${step.isSelected ? 'selected' : 'rejected'}">
+                        ${step.isSelected ? 'SELECTED' : 'REJECTED'}
+                    </div>
+                </div>
+            `).join('');
+
+            let html = `
+                <div class="analysis-section">
+                    <h3>1. Sorting Phase</h3>
+                    <p style="margin-bottom: 0.5rem; font-size: 0.9rem; color: #94a3b8;">Activities are sorted by their finish times in ascending order.</p>
+                    <div style="margin-bottom: 0.5rem;"><strong>Original:</strong> ${originalHtml}</div>
+                    <div><strong>Sorted:</strong> ${sortedHtml}</div>
+                </div>
+                <div class="analysis-section">
+                    <h3>2. Greedy Evaluation</h3>
+                    <p style="margin-bottom: 1rem; font-size: 0.9rem; color: #94a3b8;">Iterate through the sorted activities. Select the activity if it starts after or when the last selected activity finished.</p>
+                    ${stepsHtml}
+                </div>
+                <div class="analysis-section">
+                    <h3>3. Final Schedule</h3>
+                    <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 0.5rem;">The following ${analysisData.final.length} activities were selected to maximize total activities performed:</p>
+                    <div>
+                        ${analysisData.final.map(a => `<span style="color: #34d399; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 6px; margin-right: 6px; font-weight: bold;">${a.id}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+            
+            modalBody.innerHTML = html;
+            document.getElementById('analysisModal').classList.add('show');
+        }
+
+        function closeAnalysisModal() {
+            document.getElementById('analysisModal').classList.remove('show');
         }
 
         // Init

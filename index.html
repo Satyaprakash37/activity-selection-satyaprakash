@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Selection Problem (Greedy Algorithm)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #10b981;
+            --success-bg: #d1fae5;
+            --danger: #ef4444;
+            --danger-bg: #fee2e2;
+            --neutral: #64748b;
+            --neutral-bg: #f1f5f9;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border: #e2e8f0;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .student-info {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .info-box {
+            background: var(--neutral-bg);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            border-radius: 4px var(--radius) var(--radius) 4px;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: flex-end;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            flex: 1;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        input {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        button.run-btn {
+            width: 100%;
+            margin-top: 1rem;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            font-size: 1.1rem;
+            padding: 1rem;
+        }
+
+        button.run-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Activities List */
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .activity-pill {
+            background: var(--neutral-bg);
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .activity-pill .id {
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .activity-pill .times {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* Visualization Area */
+        .viz-container {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .timeline-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            background: var(--neutral-bg);
+            border: 1px solid var(--border);
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timeline-row.examining {
+            transform: scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+
+        .timeline-row.selected {
+            background: var(--success-bg);
+            border-color: var(--success);
+        }
+
+        .timeline-row.skipped {
+            background: var(--danger-bg);
+            border-color: var(--danger);
+            opacity: 0.6;
+        }
+
+        .timeline-id {
+            font-weight: 800;
+            width: 40px;
+        }
+
+        .timeline-bar-wrapper {
+            flex: 1;
+            position: relative;
+            height: 24px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 12px;
+        }
+
+        .timeline-bar {
+            position: absolute;
+            height: 100%;
+            background: var(--neutral);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .selected .timeline-bar { background: var(--success); }
+        .skipped .timeline-bar { background: var(--danger); }
+        .examining .timeline-bar { background: var(--primary); }
+
+        .status-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .status-badge.selected { background: var(--success); color: white; }
+        .status-badge.skipped { background: var(--danger); color: white; }
+
+        /* Output */
+        .output-box {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: var(--surface);
+            border: 2px dashed var(--primary);
+            border-radius: var(--radius);
+            text-align: center;
+            display: none;
+        }
+
+        .output-box.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        .log-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #1e293b;
+            color: #10b981;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            height: 150px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Activity Selection Problem (Greedy Algorithm)</h1>
+        <div class="student-info">
+            Name: <strong>Satyaprakash Sahu</strong> | Registration No: <strong>240301121593</strong>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Left Panel: Input & Logic -->
+        <div class="panel">
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <h2>Algorithm Complexity</h2>
+                <div class="info-box">
+                    <strong>Time Complexity: O(n log n)</strong> <br>
+                    <strong>Space Complexity: O(1)</strong> (excluding output array)
+                    <p style="margin-top: 0.5rem; color: var(--text-muted);">
+                        <strong>Greedy Approach:</strong> At each step, we greedily choose the activity that finishes earliest and does not overlap with previously selected activities. This leaves the maximum possible free time for remaining activities.
+                    </p>
+                </div>
+                
+                <div class="code-block">
+// Pseudo-code
+1. Sort activities by finish time.
+2. Select first activity.
+3. For each remaining activity:
+     If start time >= last selected finish time:
+         Select activity
+         Update last finish time
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Add Activity</h2>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label>Start Time</label>
+                        <input type="number" id="startInput" placeholder="e.g. 1" min="0">
+                    </div>
+                    <div class="input-field">
+                        <label>Finish Time</label>
+                        <input type="number" id="finishInput" placeholder="e.g. 3" min="1">
+                    </div>
+                    <button onclick="addActivity()">Add</button>
+                    <button onclick="resetActivities()" style="background: var(--danger);">Reset</button>
+                </div>
+                
+                <h3 style="font-size: 1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--text-muted);">Current Activities</h3>
+                <div class="activities-grid" id="activitiesGrid">
+                    <!-- Pills injected here -->
+                </div>
+
+                <button class="run-btn" id="runBtn" onclick="runAlgorithm()">Run Algorithm Visualizer ▶</button>
+            </div>
+        </div>
+
+        <!-- Right Panel: Visualization -->
+        <div class="panel">
+            <div class="card" style="height: 100%;">
+                <h2>Step-by-Step Execution</h2>
+                
+                <div class="log-box" id="logBox">
+                    > Ready to run algorithm...
+                </div>
+
+                <div class="viz-container" id="vizContainer">
+                    <!-- Timeline rows injected here -->
+                </div>
+
+                <div class="output-box" id="outputBox">
+                    <h3 style="color: var(--success); margin-bottom: 0.5rem;">Optimal Selection Found!</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">Selected based on earliest finish time without overlapping.</p>
+                    <div class="activities-grid" id="finalSelectionGrid" style="justify-content: center; display: flex; flex-wrap: wrap;">
+                        <!-- Final selected pills -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let activities = [
+            { id: 'A1', start: 1, finish: 3 },
+            { id: 'A2', start: 2, finish: 5 },
+            { id: 'A3', start: 4, finish: 7 },
+            { id: 'A4', start: 6, finish: 9 }
+        ];
+        let idCounter = 5;
+        let isRunning = false;
+
+        // DOM Elements
+        const grid = document.getElementById('activitiesGrid');
+        const vizContainer = document.getElementById('vizContainer');
+        const logBox = document.getElementById('logBox');
+        const outputBox = document.getElementById('outputBox');
+        const finalSelectionGrid = document.getElementById('finalSelectionGrid');
+        const runBtn = document.getElementById('runBtn');
+
+        // Functions
+        function renderInputs() {
+            grid.innerHTML = '';
+            activities.forEach(act => {
+                const div = document.createElement('div');
+                div.className = 'activity-pill';
+                div.innerHTML = `
+                    <div class="id">${act.id}</div>
+                    <div class="times">(${act.start}, ${act.finish})</div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function addActivity() {
+            if (isRunning) return;
+            const start = parseInt(document.getElementById('startInput').value);
+            const finish = parseInt(document.getElementById('finishInput').value);
+
+            if (isNaN(start) || isNaN(finish) || start >= finish) {
+                alert("Please enter valid start and finish times. Finish must be strictly greater than start.");
+                return;
+            }
+
+            activities.push({ id: `A${idCounter++}`, start, finish });
+            document.getElementById('startInput').value = '';
+            document.getElementById('finishInput').value = '';
+            renderInputs();
+            resetUI();
+        }
+
+        function resetActivities() {
+            if (isRunning) return;
+            activities = [
+                { id: 'A1', start: 1, finish: 3 },
+                { id: 'A2', start: 2, finish: 5 },
+                { id: 'A3', start: 4, finish: 7 },
+                { id: 'A4', start: 6, finish: 9 }
+            ];
+            idCounter = 5;
+            renderInputs();
+            resetUI();
+        }
+
+        function resetUI() {
+            vizContainer.innerHTML = '';
+            outputBox.classList.remove('show');
+            log('Ready to run algorithm...');
+        }
+
+        function log(message) {
+            logBox.innerHTML += `<br>> ${message}`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        async function runAlgorithm() {
+            if (isRunning || activities.length === 0) return;
+            isRunning = true;
+            runBtn.disabled = true;
+            resetUI();
+            logBox.innerHTML = '> Starting Greedy Algorithm...';
+
+            // Find max finish time for rendering the timeline bar accurately
+            let maxFinish = Math.max(...activities.map(a => a.finish));
+
+            // 1. Sort by finish time
+            log('Step 1: Sorting activities ascending by finish time O(n log n).');
+            const sorted = [...activities].sort((a, b) => a.finish - b.finish);
+            
+            // Render sorted initial state
+            vizContainer.innerHTML = '';
+            const rowElements = {};
+            sorted.forEach(act => {
+                const wPct = ((act.finish - act.start) / maxFinish) * 100;
+                const lPct = (act.start / maxFinish) * 100;
+
+                const row = document.createElement('div');
+                row.className = 'timeline-row';
+                row.id = `row-${act.id}`;
+                row.innerHTML = `
+                    <div class="timeline-id">${act.id}</div>
+                    <div class="timeline-bar-wrapper">
+                        <div class="timeline-bar" style="width: ${Math.max(wPct, 2)}%; left: ${lPct}%">
+                            (${act.start}, ${act.finish})
+                        </div>
+                    </div>
+                    <div class="status-badge" id="badge-${act.id}">WAITING</div>
+                `;
+                vizContainer.appendChild(row);
+                rowElements[act.id] = row;
+            });
+
+            await sleep(1500);
+
+            let selected = [];
+            let lastFinish = 0;
+
+            // 2. Greedy Choice
+            for (let i = 0; i < sorted.length; i++) {
+                const act = sorted[i];
+                const row = rowElements[act.id];
+                const badge = document.getElementById(`badge-${act.id}`);
+                
+                // Highlight examining
+                row.classList.add('examining');
+                log(`Examining ${act.id} (Start: ${act.start}, Finish: ${act.finish}). Last finish time is ${lastFinish}.`);
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                await sleep(1500);
+
+                if (act.start >= lastFinish) {
+                    // Select
+                    log(`<span style="color:#10b981">-> Select ${act.id}: ${act.start} is >= ${lastFinish}. Updating last finish to ${act.finish}.</span>`);
+                    row.classList.remove('examining');
+                    row.classList.add('selected');
+                    badge.className = 'status-badge selected';
+                    badge.innerText = 'SELECTED';
+                    selected.push(act);
+                    lastFinish = act.finish;
+                } else {
+                    // Skip
+                    log(`<span style="color:#ef4444">-> Skip ${act.id}: ${act.start} < ${lastFinish} (Overlaps!).</span>`);
+                    row.classList.remove('examining');
+                    row.classList.add('skipped');
+                    badge.className = 'status-badge skipped';
+                    badge.innerText = 'SKIPPED';
+                }
+
+                await sleep(1000);
+            }
+
+            log('Algorithm complete. O(n) scan finished.');
+            
+            // Show Output
+            finalSelectionGrid.innerHTML = '';
+            selected.forEach(act => {
+                finalSelectionGrid.innerHTML += `
+                    <div class="activity-pill selected" style="border-color: var(--success); background: var(--success-bg);">
+                        <div class="id" style="color: var(--success);">${act.id}</div>
+                        <div class="times">(${act.start}, ${act.finish})</div>
+                    </div>
+                `;
+            });
+            outputBox.classList.add('show');
+
+            isRunning = false;
+            runBtn.disabled = false;
+        }
+
+        // Init
+        renderInputs();
+    </script>
+</body>
+</html>
